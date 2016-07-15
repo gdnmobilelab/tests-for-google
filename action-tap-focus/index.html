@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <style>
+        button {
+            display: block;
+            background: darkred;
+            padding: 10px 0;
+            width: 100%;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+        }
+    </style>
+    <body>
+        <button disabled id='send-test'>Send Test Notification</button>
+        <script>
+
+            document.getElementById('send-test').addEventListener('click', function() {
+                new Promise(function (fulfill, reject) {
+                    if (window.Notification.permission === 'granted') {
+                        return fulfill(true);
+                    }
+                    Notification.requestPermission((status) => {
+                        if (status === 'granted') {
+                            return fulfill(true);
+                        }
+                        reject(new Error(status))
+                    })
+                })
+                .then(function() {
+                    navigator.serviceWorker.controller.postMessage('notify');
+                })
+                
+            })
+
+
+            navigator.serviceWorker.register('sw.js')
+            .then(function(reg) {
+                return navigator.serviceWorker.ready;
+            })
+            .then(function() {
+                document.getElementById('send-test').disabled = false;
+            })
+        </script>
+    </body>
+</html>
